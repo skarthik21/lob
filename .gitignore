@@ -1,0 +1,21 @@
+# build output
+build/
+*.dSYM/
+*.o
+*.a
+
+# editor / OS
+.vscode/
+.DS_Store
+
+# scratch experiments
+temp/
+
+scripts/
+
+# private notes
+BENCHMARK_NOTES.md
+LATENCY_TODO.md
+LESSONS.md
+PUBLISH_TODO.md
+REVIEW_NOTES.md

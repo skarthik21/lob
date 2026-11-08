@@ -1,0 +1,8 @@
+cpu:      Apple M1 Pro (6P + 2E cores)
+memory:   16 GB
+os:       macOS 26.4.1
+compiler: Apple clang version 21.0.0 (clang-2100.0.123.102)
+build:    Release (CMake 4.4.5)
+library:  Google Benchmark v1.9.1
+commit:   none (run before the first commit)
+date:     2026-11-08
