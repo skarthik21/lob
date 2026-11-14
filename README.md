@@ -92,14 +92,27 @@ One producer and one consumer thread, 1M messages, median of 15 runs. Single: on
 
 #### Latency
 
-Push to pop, 8 B messages, 32K-slot queue, sent at a fixed rate, median of 15 runs.
+Push to pop, sent at a fixed rate, 1M messages, median of 15 runs.
 
-| Rate | p50 | p99 |
-|---|---|---|
-| 250k msg/s | ≤ 42 ns | 542 ns |
-| 500k msg/s | ≤ 42 ns | 458 ns |
-| 1M msg/s | ≤ 42 ns | 458 ns |
-| 2M msg/s | ≤ 42 ns | 458 ns |
+8 B messages, 32K-slot queue:
+
+| Rate | p50 | p90 | p99 | p99.9 |
+|---|---|---|---|---|
+| 250k msg/s | 42 ns | 83–250 ns | 542 ns | 12.1 µs |
+| 500k msg/s | 42 ns | 42–83 ns | 458 ns | 11.0 µs |
+| 1M msg/s | 42 ns | 42–250 ns | 458 ns | 10.8 µs |
+| 2M msg/s | 42 ns | 42–250 ns | 458 ns | 13.9 µs |
+
+128 B messages, 1M-slot queue:
+
+| Rate | p50 | p90 | p99 | p99.9 |
+|---|---|---|---|---|
+| 250k msg/s | 42 ns | 83–167 ns | 375 ns | 10.0 µs |
+| 500k msg/s | 42 ns | 42–167 ns | 333 ns | 10.3 µs |
+| 1M msg/s | 42 ns | 42 ns | 333 ns | 8.8 µs |
+| 2M msg/s | 42 ns | 42–167 ns | 333 ns | 9.8 µs |
+
+p90 sits on the boundary between one and a few ticks, so it moves between runs; the range covers every run (three for 8 B, two for 128 B).
 
 ### Order book
 
@@ -136,20 +149,33 @@ Latency per operation on the same mixes:
 
 Producer thread → message queue → book thread → log queue → consumer thread. Open loop: each message is sent at its scheduled time whether or not the book has caught up, and latency runs from that scheduled time until the message's last log event is popped. 1M messages per rate.
 
-| Rate | Resting p50 / p99 / p99.9 | Aggressive p50 / p99 / p99.9 |
-|---|---|---|
-| 100k msg/s | 0.21 / 1.29 / 27.2 µs | 0.21 / 1.29 / 25.3 µs |
-| 500k msg/s | 0.21 / 1.17 / 27.9 µs | 0.21 / 1.13 / 23.5 µs |
-| 1M msg/s | 0.17 / 0.92 / 24.4 µs | 0.21 / 0.71 / 24.2 µs |
-| 2M msg/s | 0.17 / 0.67 / 28.7 µs | 0.21 / 0.79 / 22.6 µs |
-| 5M msg/s | — | 0.17 / 0.79 / 26.7 µs |
+Resting load (no crossing):
+
+| Rate | p50 | p90 | p99 | p99.9 |
+|---|---|---|---|---|
+| 100k msg/s | 0.21 µs | 0.79 µs | 1.29 µs | 27.2 µs |
+| 500k msg/s | 0.21 µs | 0.63 µs | 1.17 µs | 27.9 µs |
+| 1M msg/s | 0.17 µs | 0.63 µs | 0.92 µs | 24.4 µs |
+| 2M msg/s | 0.17 µs | 0.54 µs | 0.67 µs | 28.7 µs |
+
+Aggressive load (10% of adds set to cross, up to 3 levels):
+
+| Rate | p50 | p90 | p99 | p99.9 |
+|---|---|---|---|---|
+| 100k msg/s | 0.21 µs | 0.96 µs | 1.29 µs | 25.3 µs |
+| 500k msg/s | 0.21 µs | 0.63 µs | 1.13 µs | 23.5 µs |
+| 1M msg/s | 0.21 µs | 0.58 µs | 0.71 µs | 24.2 µs |
+| 2M msg/s | 0.21 µs | 0.58 µs | 0.79 µs | 22.6 µs |
+| 5M msg/s | 0.17 µs | 0.33 µs | 0.79 µs | 26.7 µs |
+
+p99.9 stays near 25 µs at every rate and on both loads, which points to the operating system (interrupts, scheduling) rather than the book.
 
 ## Build & run
 
 Prerequisites: macOS or Linux, CMake 3.25+, and Clang 17+ or GCC 13+.
 
 ```sh
-git clone <repo-url> && cd lob
+git clone https://github.com/skarthik21/lob.git && cd lob
 cmake -S . -B build
 cmake --build build -j
 ```

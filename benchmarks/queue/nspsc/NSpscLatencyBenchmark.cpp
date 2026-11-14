@@ -61,7 +61,7 @@ T createT(int id, std::uint64_t ts) {
 }
 
 void computeHistograms(std::vector<std::uint64_t>& freqArray, benchmark::State& state, std::string prefix) {
-    std::vector<double> quantiles{0.2, 0.5, 0.75, 0.9, 0.99};
+    std::vector<double> quantiles{0.5, 0.75, 0.9, 0.99, 0.999};
     std::vector<double> res(5);
     double N = Utils::ticksPerSecond();
     long totalSum = 0;
@@ -154,4 +154,5 @@ static void BM_PushAndPopLatency(benchmark::State& state) {
 //BENCHMARK(BM_PushAndPopLatency<Message8Bytes, 32768>)->Args({100000, 24, 1000})->Args({1000000, 48, 5000})->Repetitions(15)->ReportAggregatesOnly(true)->UseRealTime();
 //BENCHMARK(BM_PushAndPopLatency<Message8Bytes, 1048576>)->Args({1000000, 48, 1000})->Args({10000000, 96, 10000})->Repetitions(15)->ReportAggregatesOnly(true)->UseRealTime();
 
-BENCHMARK(BM_PushAndPopLatency<Message8Bytes>)->Args({100000, 6, 1000, 32768})->Args({100000, 12, 1000, 32768})->Args({100000, 24, 1000, 32768})->Args({100000, 48, 1000, 32768})->Args({100000, 96, 1000, 32768})->Repetitions(15)->ReportAggregatesOnly(true)->UseRealTime();
+BENCHMARK(BM_PushAndPopLatency<Message8Bytes>)->Args({1000000, 6, 1000, 32768})->Args({1000000, 12, 1000, 32768})->Args({1000000, 24, 1000, 32768})->Args({1000000, 48, 1000, 32768})->Args({1000000, 96, 1000, 32768})->Repetitions(15)->ReportAggregatesOnly(true)->UseRealTime();
+BENCHMARK(BM_PushAndPopLatency<Message128Bytes>)->Args({1000000, 6, 1000, 1048576})->Args({1000000, 12, 1000, 1048576})->Args({1000000, 24, 1000, 1048576})->Args({1000000, 48, 1000, 1048576})->Args({1000000, 96, 1000, 1048576})->Repetitions(15)->ReportAggregatesOnly(true)->UseRealTime();
